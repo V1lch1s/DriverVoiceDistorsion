@@ -1,0 +1,64 @@
+[Version]
+; Esta sección especifica la versión del archivo INF y el entorno en el que será utilizado.
+Signature = "$WINDOWS NT$" ; Identifica el sistema como basado en Windows NT.
+Class = Keyboard ; Define la clase del dispositivo
+; Global Unique IDentifier (GUID) para la clase del dispositivo.
+ClassGuid = {4d36e96b-e325-11ce-bfc1-08002be10318} ; https://learn.microsoft.com/en-us/windows-hardware/drivers/install/system-defined-device-setup-classes-available-to-vendors
+Provider = %ManufacturerName% ; Nombre del proveedor o fabricante. Se define en la sección [Strings].
+DriverVer = 01/16/2025, 0.0.0.1 ; Fecha y versión del driver. Actualizar.
+;CatalogFile = PrimerDriver.cat ; Esto es para la firma.
+
+[Manufacturer]
+; En esta sección se define la lista de fabricantes y los dispositivos que soportan.
+%ManufacturerName% = Standard, NTx86, NTamd64 ; Define el fabricante con soporte para arquitecturas de 32 y 64 bits.
+
+[Standard.NTx86]
+; En esta sección se define la lista de dispositivos soportados en sistemas de 32 bits.
+%DeviceName% = Install, Root\TargetDevice ; Define un dispositivo con su nombre y ruta al controlador lógico (Root).
+
+[Standard.NTamd64]
+; En esta sección se define la lista de dispositivos soportados en sistemas de 64 bits.
+%DeviceName% = Install, Root\TargetDevice ; Similar al anterior, pero para sistemas de 64 bits.
+
+[Install]
+; Esta sección es como la anterior, pero la instalación es por defecto.
+CopyFiles = DriverCopyFiles
+AddReg = DriverAddRegistry
+
+[Install.Services]
+; En esta sección se registra el servicio
+AddService = PrimerDriver, 0x00000002, ServiceInstall
+
+[DriverCopyFiles]
+; Esta sección contiene la lista de archivos que se copiarán.
+PrimerDriver.sys ; Archivo principal del driver.
+
+[DriverAddRegistry]
+; Esta sección contiene la configuración que se agrega al registro de Windows.
+HKR,, FriendlyName,, %DeviceName% ; Define un nombre amigable para el dispositivo en el registro.
+
+[ServiceInstall]
+; Sección para el servicio de instalación.
+; Un driver que se ejecuta en modo kernel usualmente se registra como un servicio para ser gestionado por el
+; sistema operativo (controlado por el Administrador de Control de Servicios). ~ChatGPT
+DisplayName = %DeviceName% ; Nombre del servicio.
+ServiceType = 1 ; Servicio del kernel.
+StartType = 3 ; Inicia bajo demanda.
+ErrorControl = 1 ; Control de errores.
+ServiceBinary = %12%\Drivers\PrimerDriver.sys ; Ruta al archivo del driver.
+
+[SourceDiskFiles]
+; Especifica los archivos en los discos de origen.
+PrimerDriver.sys = 1 ; Relación entre el archivo y el disco definido en [SourceDiskNames].
+
+[SourceDisksNames]
+; Sección que alberga la lista de discos necesarios para la instalación.
+1 = %DiskName%,,, ; Variable con el nombre del disco definido en [Strings].
+
+[Strings]
+; Sección que contiene cadenas de texto reutilizables en el archivo INF.
+ManufacturerName = "ADCASE" ; Nombre del fabricante.
+DeviceName = "Client Device" ; Nombre del dispositivo.
+DiskName = "Installation Disk" ; Nombre del disco.
+; %12% es la ruta a la carpeta de los drivers
+; Cambiar el nombre del driver "PrimerDriver.sys"
